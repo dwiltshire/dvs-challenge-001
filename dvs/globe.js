@@ -169,7 +169,7 @@ DAT.Globe = function(container, opts) {
   }
 
   function createPointMarkerTemplate() {
-    geometry = new THREE.BoxGeometry(0.75, 0.75, 1);
+    geometry = new THREE.SphereGeometry( 1, 8, 8 );
     geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,0,-0.5));
     point = new THREE.Mesh(geometry);
   }
