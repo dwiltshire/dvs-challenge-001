@@ -99,6 +99,35 @@ DAT.Globe = function(container, opts) {
 
     scene = new THREE.Scene();
 
+    addGlobe();
+    addAtmosphere();
+    createPointMarkerTemplate();
+
+    renderer = new THREE.WebGLRenderer({antialias: true});
+    renderer.setSize(w, h);
+    renderer.domElement.style.position = 'absolute';
+
+    if(opts.background) {
+      renderer.setClearColor (opts.background, 1);
+    }
+
+    container.appendChild(renderer.domElement);
+    container.addEventListener('mousedown', onMouseDown, false);
+    container.addEventListener('mousewheel', onMouseWheel, false);
+
+    document.addEventListener('keydown', onDocumentKeyDown, false);
+    window.addEventListener('resize', onWindowResize, false);
+
+    container.addEventListener('mouseover', function() {
+      overRenderer = true;
+    }, false);
+
+    container.addEventListener('mouseout', function() {
+      overRenderer = false;
+    }, false);
+  }
+
+  function addGlobe() {
     var geometry = new THREE.SphereGeometry(200, 40, 30);
 
     shader = Shaders['earth'];
@@ -117,6 +146,10 @@ DAT.Globe = function(container, opts) {
     mesh = new THREE.Mesh(geometry, material);
     mesh.rotation.y = Math.PI;
     scene.add(mesh);
+  }
+
+  function addAtmosphere() {
+    var geometry = new THREE.SphereGeometry(200, 40, 30);
 
     shader = Shaders['atmosphere'];
     uniforms = THREE.UniformsUtils.clone(shader.uniforms);
@@ -133,30 +166,12 @@ DAT.Globe = function(container, opts) {
     mesh = new THREE.Mesh(geometry, material);
     mesh.scale.set( 1.1, 1.1, 1.1 );
     scene.add(mesh);
+  }
 
+  function createPointMarkerTemplate() {
     geometry = new THREE.BoxGeometry(0.75, 0.75, 1);
     geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,0,-0.5));
-
     point = new THREE.Mesh(geometry);
-
-    renderer = new THREE.WebGLRenderer({antialias: true});
-    renderer.setSize(w, h);
-    renderer.domElement.style.position = 'absolute';
-
-    container.appendChild(renderer.domElement);
-    container.addEventListener('mousedown', onMouseDown, false);
-    container.addEventListener('mousewheel', onMouseWheel, false);
-
-    document.addEventListener('keydown', onDocumentKeyDown, false);
-    window.addEventListener('resize', onWindowResize, false);
-
-    container.addEventListener('mouseover', function() {
-      overRenderer = true;
-    }, false);
-
-    container.addEventListener('mouseout', function() {
-      overRenderer = false;
-    }, false);
   }
 
   function addData(data, opts) {
