@@ -4,6 +4,9 @@
     <title>DVS</title>
     <meta charset="utf-8">
     <style type="text/css">
+      /* #D8B03D yellow */
+      /* #5BADA3 teal */
+      /* #95689C purple */
       html {
         height: 100%;
       }
@@ -88,10 +91,17 @@
         background: url(/globe/ce.png);
       }
 
-
+      .legend {
+        font-size: 30pt;
+        position: absolute;
+        z-index: 10;
+        margin: 15px 0.25em;
+        line-height: 1;
+      }
     </style>
   </head>
   <body>
+    <div class="legend"></div>
     <div id="container"></div>
 
     <div id="info">
@@ -105,12 +115,19 @@
     <script type="text/javascript" src="/globe/third-party/three.min.js"></script>
     <script type="text/javascript" src="globe.js"></script>
     <script type="text/javascript">
+    const DATA_PER_FRAME = 1;
+    const MAGNITUDE = 0.005;
     const colours = [
       0xd9d9d9, 0xb6b4b5, 0x9966cc, 0x15adff, 0x3e66a3, 0x216288,
       0xff7e7e, 0xff1f13, 0xc0120b, 0x5a1301, 0xffcc02, 0xedb113,
       0x9fce66, 0x0c9a39, 0xfe9872, 0x7f3f98, 0xf26522, 0x2bb673,
       0xd7df23, 0xe6b23a, 0x7ed3f7
     ];
+    const $hourLegend = document.querySelector('.legend');
+    let firstHour;
+    let rotationX = 0;
+    let startTime = new Date();
+    let dataGroupedByHour;
 
       var globe = DAT.Globe(document.getElementById('container'), {
         animated: true,
@@ -137,6 +154,9 @@
               hour
             ] = fields;
 
+            const fullDate = new Date(date);
+            fullDate.setHours(hour);
+
             return {
               lat,
               long,
@@ -144,30 +164,58 @@
               data,
               visualization,
               society,
-              dateWithHour,
-              date,
-              hour
+              date: fullDate
             };
           });
       }
 
-      let rotationX = 0;
-      function showData(data) {
-        const DATA_PER_FRAME = 1;
-        const MAGNITUDE = 0.005;
-
-        const pointsToRender = data.splice(0, DATA_PER_FRAME)
-          .reduce((points, point) =>
+      function addDataPoints(pointsToRender) {
+        const globeRenderData = pointsToRender.reduce((points, point) =>
             points.concat([point.lat, point.long, MAGNITUDE]), []);
 
-        globe.addData(pointsToRender, {format: 'magnitude'});
+        globe.addData(globeRenderData, {format: 'magnitude'});
         globe.createPoints();
+      }
 
+      let hoursEllapsed = 0;
+      let memberCount = 0;
+      function animate() {
         globe.setRotationX(rotationX+= 0.01);
 
-        if(data.length > 0) {
-            requestAnimationFrame(() => showData(data));
+        if(dataGroupedByHour.length > 0) {
+          hoursEllapsed++
+          memberCount += dataGroupedByHour[0].length;
+          $hourLegend.innerText = `DAY ${Math.floor(hoursEllapsed/24)}
+          MEMBERS: ${memberCount}`;
+          addDataPoints(dataGroupedByHour.shift());
         }
+
+        requestAnimationFrame(() => animate(data));
+      }
+
+      function showData(data) {
+        const dataOrderedByDate = data
+          .sort((a, b) => a.date > b.date);
+        dataGroupedByHour = [];
+        firstHour = new Date(data[0]
+          .date.toString());
+        let currentHour = firstHour;
+        let currentHourGroup = [];
+
+        while(dataOrderedByDate.length > 0) {
+            while(dataOrderedByDate.length > 0
+              && dataOrderedByDate[0].date <= currentHour) {
+              currentHourGroup
+                .push(dataOrderedByDate.shift())
+            }
+
+            dataGroupedByHour.push(currentHourGroup);
+            currentHourGroup = [];
+            currentHour.setHours(currentHour.getHours() +1)
+        }
+
+        globe.animate();
+        animate();
       }
 
       var xhr = new XMLHttpRequest();
@@ -175,7 +223,6 @@
       xhr.onreadystatechange = function(e) {
         if (xhr.readyState === 4 && xhr.status === 200) {
           showData(parseCsv(xhr.responseText));
-          globe.animate();
           document.body.style.backgroundImage = 'none'; // remove loading
         }
       };
