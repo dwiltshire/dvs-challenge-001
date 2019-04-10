@@ -100,7 +100,8 @@ DAT.Globe = function(container, opts) {
     scene = new THREE.Scene();
 
     addGlobe();
-    addAtmosphere();
+    // addAtmosphere();
+    addSolarTerminator();
     createPointMarkerTemplate();
 
     renderer = new THREE.WebGLRenderer({antialias: true});
@@ -166,6 +167,25 @@ DAT.Globe = function(container, opts) {
     mesh = new THREE.Mesh(geometry, material);
     mesh.scale.set( 1.1, 1.1, 1.1 );
     scene.add(mesh);
+  }
+
+  /**
+    * Crudely adds a solar terminator to the globe.
+    */
+  function addSolarTerminator() {
+    var geometry = new THREE.SphereGeometry(200, 40, 30);
+
+    new THREE.TextureLoader()
+      .load(imgDir+'terminator_4096.png', texture => {
+        var material = new THREE.MeshBasicMaterial({
+          map: texture,
+          transparent: true
+        });
+
+        mesh = new THREE.Mesh(geometry, material);
+        mesh.scale.set(1.025, 1.025, 1.025);
+        scene.add(mesh);
+      });
   }
 
   function createPointMarkerTemplate() {
