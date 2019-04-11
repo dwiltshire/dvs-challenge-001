@@ -14,7 +14,7 @@
       body {
         margin: 0;
         padding: 0;
-        background: #333 url(/globe/loading.gif) center center no-repeat;
+        background: #333 url(assets/loading.gif) center center no-repeat;
         color: #ffffff;
         font-family: sans-serif;
         font-size: 13px;
@@ -77,20 +77,6 @@
         color: #fff;
       }
 
-      #ce span {
-        display: none;
-      }
-
-      #ce {
-        width: 107px;
-        height: 55px;
-        display: block;
-        position: absolute;
-        bottom: 15px;
-        left: 20px;
-        background: url(/globe/ce.png);
-      }
-
       .legend {
         font-size: 30pt;
         position: absolute;
@@ -112,9 +98,9 @@
       the code</a> <span class="bull">&bull;</span> By the Google Data Arts Team</a>
     </div>
 
-    <script type="text/javascript" src="/globe/third-party/Detector.js"></script>
-    <script type="text/javascript" src="/globe/third-party/three.min.js"></script>
-    <script type="text/javascript" src="globe.js"></script>
+    <script type="text/javascript" src="js/libs/Detector.js"></script>
+    <script type="text/javascript" src="js/libs/three.min.js"></script>
+    <script type="text/javascript" src="js/globe.js"></script>
     <script type="text/javascript">
     const DATA_PER_FRAME = 1;
     const MAGNITUDE = 0.005;
@@ -135,7 +121,7 @@
 
       var globe = DAT.Globe(document.getElementById('container'), {
         animated: true,
-        imgDir: './',
+        imgDir: './assets/',
         background: 0xBBBBBB,
         colorFn: function(data) {
             return new THREE.Color(colours[Math.floor(Math.random()*colours.length)]);
@@ -231,7 +217,7 @@
       }
 
       var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/dvs/dvs_challenge_1_membership_time_space.csv', true);
+      xhr.open('GET', 'data/dvs_challenge_1_membership_time_space.csv', true);
       xhr.onreadystatechange = function(e) {
         if (xhr.readyState === 4 && xhr.status === 200) {
           showData(parseCsv(xhr.responseText));
