@@ -389,7 +389,7 @@ DAT.Globe = function(container, opts) {
     distance += (distanceTarget - distance) * 0.3;
 
     if(solarTerminator) {
-      solarTerminator.rotation.y = currentTime/24 * FULL_ROTATION_RADIANS;
+      solarTerminator.rotation.y = currentTime/24 * FULL_ROTATION_RADIANS * -1;
     }
 
     camera.position.x = distance * Math.sin(rotation.x) * Math.cos(rotation.y);
