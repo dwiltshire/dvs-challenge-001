@@ -97,6 +97,7 @@
         z-index: 10;
         margin: 15px 0.25em;
         line-height: 1;
+        text-shadow: rgba(0,0,0,0.5) 0px 0px 3px;
       }
     </style>
   </head>
@@ -180,17 +181,25 @@
         globe.createPoints();
       }
 
-      let hoursEllapsed = 0;
+      let time = 0;// in hours
+      let hoursDisplayed = 0;
       let memberCount = 0;
       function animate() {
-        globe.setRotationX(rotationX+= 0.01);
+        // globe.setRotationX(rotationX+= 0.001);
+        globe.setTimeInHours(time % 24);
 
         if(dataGroupedByHour.length > 0) {
-          hoursEllapsed++
-          memberCount += dataGroupedByHour[0].length;
-          $hourLegend.innerText = `DAY ${Math.floor(hoursEllapsed/24)}
-          MEMBERS: ${memberCount}`;
-          addDataPoints(dataGroupedByHour.shift());
+          time += 0.05
+
+          if(time > hoursDisplayed) {
+            memberCount += dataGroupedByHour[0].length;
+            $hourLegend.innerText = `DAY ${Math.floor(time/24)+1}
+            HOUR ${Math.floor(time)}
+            MEMBERS: ${memberCount}`;
+
+            addDataPoints(dataGroupedByHour.shift());
+            hoursDisplayed++;
+          }
         }
 
         requestAnimationFrame(() => animate(data));

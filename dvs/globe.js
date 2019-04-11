@@ -69,7 +69,7 @@ DAT.Globe = function(container, opts) {
   };
 
   var camera, scene, renderer, w, h;
-  var mesh, atmosphere, point;
+  var mesh, atmosphere, point, solarTerminator;
 
   var overRenderer;
 
@@ -78,12 +78,14 @@ DAT.Globe = function(container, opts) {
 
   var mouse = { x: 0, y: 0 }, mouseOnDown = { x: 0, y: 0 };
   var rotation = { x: 0, y: 0 },
+      currentTime = 0, // time in hours
       target = { x: Math.PI*3/2, y: Math.PI / 6.0 },
       targetOnDown = { x: 0, y: 0 };
 
   var distance = 100000, distanceTarget = 100000;
   var padding = 40;
   var PI_HALF = Math.PI / 2;
+  var FULL_ROTATION_RADIANS = Math.PI * 2;
 
   function init() {
     var shader, uniforms, material;
@@ -182,9 +184,9 @@ DAT.Globe = function(container, opts) {
           transparent: true
         });
 
-        mesh = new THREE.Mesh(geometry, material);
-        mesh.scale.set(1.025, 1.025, 1.025);
-        scene.add(mesh);
+        solarTerminator = new THREE.Mesh(geometry, material);
+        solarTerminator.scale.set(1.025, 1.025, 1.025);
+        scene.add(solarTerminator);
       });
   }
 
@@ -386,6 +388,10 @@ DAT.Globe = function(container, opts) {
     rotation.y += (target.y - rotation.y) * 0.1;
     distance += (distanceTarget - distance) * 0.3;
 
+    if(solarTerminator) {
+      solarTerminator.rotation.y = currentTime/24 * FULL_ROTATION_RADIANS;
+    }
+
     camera.position.x = distance * Math.sin(rotation.x) * Math.cos(rotation.y);
     camera.position.y = distance * Math.sin(rotation.y);
     camera.position.z = distance * Math.cos(rotation.x) * Math.cos(rotation.y);
@@ -442,6 +448,7 @@ DAT.Globe = function(container, opts) {
     zoom(zoomLevel)
   }
   this.setRotationX = x => rotation.x = x;
+  this.setTimeInHours = time => currentTime = time;
 
   return this;
 
