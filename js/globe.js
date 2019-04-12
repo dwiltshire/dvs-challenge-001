@@ -69,7 +69,7 @@ DAT.Globe = function(container, opts) {
   };
 
   var camera, scene, renderer, w, h;
-  var mesh, atmosphere, point, solarTerminator;
+  var mesh, atmosphere, point, solarTerminatorMaterial;
 
   var overRenderer;
 
@@ -179,14 +179,16 @@ DAT.Globe = function(container, opts) {
 
     new THREE.TextureLoader()
       .load(imgDir+'terminator_4096.png', texture => {
-        var material = new THREE.MeshBasicMaterial({
+        solarTerminatorMaterial = new THREE.MeshBasicMaterial({
           map: texture,
           transparent: true
         });
 
-        solarTerminator = new THREE.Mesh(geometry, material);
-        solarTerminator.scale.set(1.025, 1.025, 1.025);
-        scene.add(solarTerminator);
+        texture.wrapS = THREE.RepeatWrapping;
+
+        var mesh = new THREE.Mesh(geometry, solarTerminatorMaterial);
+        mesh.scale.set(1.025, 1.025, 1.025);
+        scene.add(mesh);
       });
   }
 
@@ -388,8 +390,8 @@ DAT.Globe = function(container, opts) {
     rotation.y += (target.y - rotation.y) * 0.1;
     distance += (distanceTarget - distance) * 0.3;
 
-    if(solarTerminator) {
-      solarTerminator.rotation.y = currentTime/24 * FULL_ROTATION_RADIANS * -1;
+    if(solarTerminatorMaterial) {
+      solarTerminatorMaterial.map.offset.x = currentTime/24;
     }
 
     camera.position.x = distance * Math.sin(rotation.x) * Math.cos(rotation.y);
