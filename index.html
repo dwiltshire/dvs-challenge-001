@@ -201,6 +201,8 @@
         let currentHour = firstHour;
         let currentHourGroup = [];
 
+        time = data[0].date.getHours();
+
         while(dataOrderedByDate.length > 0) {
             while(dataOrderedByDate.length > 0
               && dataOrderedByDate[0].date <= currentHour) {
