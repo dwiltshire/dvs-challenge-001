@@ -4,7 +4,7 @@
     <title>DVS</title>
     <meta charset="utf-8">
     <style type="text/css">
-      /* #D8B03D yellow */
+      /* #D8B03D gold */
       /* #5BADA3 teal */
       /* #95689C purple */
       html {
@@ -104,16 +104,11 @@
     <script type="text/javascript" src="js/globe.js"></script>
     <script type="text/javascript">
     const DATA_PER_FRAME = 1;
-    const MAGNITUDE = 0.005;
-    const colours = [
-      // 0xd9d9d9, 0xb6b4b5, 0x9966cc, 0x15adff, 0x3e66a3, 0x216288,
-      // 0xff7e7e, 0xff1f13, 0xc0120b, 0x5a1301, 0xffcc02, 0xedb113,
-      // 0x9fce66, 0x0c9a39, 0xfe9872, 0x7f3f98, 0xf26522, 0x2bb673,
-      // 0xd7df23, 0xe6b23a, 0x7ed3f7
-      0xD8B03D, /* yellow */
-      0x5BADA3, /* teal */
-      0x95689C /* purple */
-    ];
+    const COLOUR = {
+      DATA: 0x5BADA3,
+      VISUALIZATION: 0xD8B03D,
+      SOCIETY: 0x95689C,
+    }
     const $hourLegend = document.querySelector('.legend');
     let firstHour;
     let rotationX = 0;
@@ -125,7 +120,20 @@
         imgDir: './assets/',
         background: 0xBBBBBB,
         colorFn: function(data) {
-            return new THREE.Color(colours[Math.floor(Math.random()*colours.length)]);
+            var highestScore = Math.max(
+              data.data,
+              data.visualization,
+              data.society);
+
+            switch(highestScore) {
+              case data.data:
+                  return new THREE.Color(COLOUR.DATA);
+              case data.visualization:
+                return new THREE.Color(COLOUR.VISUALIZATION);
+              case data.society:
+              default:
+                return new THREE.Color(COLOUR.SOCIETY);
+            }
         }
       });
 
@@ -151,20 +159,16 @@
             return {
               lat,
               long,
-              long,
-              data,
-              visualization,
-              society,
+              data: Number(data),
+              visualization: Number(visualization),
+              society: Number(society),
               date: fullDate
             };
           });
       }
 
       function addDataPoints(pointsToRender) {
-        const globeRenderData = pointsToRender.reduce((points, point) =>
-            points.concat([point.lat, point.long, MAGNITUDE]), []);
-
-        globe.addData(globeRenderData, {format: 'magnitude'});
+        globe.addData(pointsToRender);
         globe.createPoints();
       }
 
@@ -180,9 +184,12 @@
 
           if(time > hoursDisplayed) {
             memberCount += dataGroupedByHour[0].length;
-            $hourLegend.innerText = `DAY ${Math.floor(time/24)+1}
-            HOUR ${Math.floor(time)}
-            MEMBERS: ${memberCount}`;
+            // $hourLegend.innerText = `DAY ${Math.floor(time/24)+1}
+            // HOUR ${Math.floor(time)}
+            // MEMBERS: ${memberCount}`;
+
+            $hourLegend.innerText =
+              `DAY ${Math.floor(time/24)+1}, MEMBERS: ${memberCount}`;
 
             addDataPoints(dataGroupedByHour.shift());
             hoursDisplayed++;
