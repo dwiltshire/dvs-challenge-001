@@ -23,6 +23,10 @@
         height: 100%;
       }
 
+      .is-hidden {
+        visibility: hidden;
+      }
+
       #info {
 
         font-size: 11px;
@@ -109,6 +113,9 @@
       VISUALIZATION: 0xD8B03D,
       SOCIETY: 0x95689C,
     }
+    const KEY_CODE = {
+      H: 72
+    }
     const $hourLegend = document.querySelector('.legend');
     let firstHour;
     let rotationX = 0;
@@ -176,7 +183,7 @@
       let hoursDisplayed = 0;
       let memberCount = 0;
       function animate() {
-        // globe.setRotationX(rotationX+= 0.001);
+        globe.setRotationX(rotationX += 0.005);
         globe.setTimeInHours(time % 24);
 
         if(dataGroupedByHour.length > 0) {
@@ -235,6 +242,16 @@
         }
       };
       xhr.send(null);
+
+      document.onkeydown = key => {
+        switch(key.keyCode) {
+          case KEY_CODE.H:
+            document.querySelector('#info').classList
+              .toggle('is-hidden');
+            break;
+        }
+        console.log(key.code);
+      }
     </script>
     <link href="https://fonts.googleapis.com/css?family=Nunito:600" rel="stylesheet">
   </body>
